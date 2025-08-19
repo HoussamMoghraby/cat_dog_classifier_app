@@ -1,63 +1,121 @@
 import os
-# hide TF warnings
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
-import tensorflow as tf
-
-from tensorflow.keras.preprocessing.image import load_img
-from tensorflow.keras.preprocessing.image import img_to_array
-from tensorflow.keras.models import load_model
-
+import logging
+import cv2
+import numpy as np
 from PIL import Image
 from urllib.request import urlretrieve
+from ultralytics import YOLO
+import base64
 
-import logging
-
-class CatDogClassifier:
-
+class ObjectDetector:
+    # COCO dataset class names that YOLOv8 can detect
+    CLASS_NAMES = {
+        0: 'person', 1: 'bicycle', 2: 'car', 3: 'motorcycle', 4: 'airplane',
+        5: 'bus', 6: 'train', 7: 'truck', 8: 'boat', 9: 'traffic light',
+        10: 'fire hydrant', 11: 'stop sign', 12: 'parking meter', 13: 'bench',
+        14: 'bird', 15: 'cat', 16: 'dog', 17: 'horse', 18: 'sheep',
+        19: 'cow', 20: 'elephant', 21: 'bear', 22: 'zebra', 23: 'giraffe',
+        24: 'backpack', 25: 'umbrella', 26: 'handbag', 27: 'tie', 28: 'suitcase',
+        29: 'frisbee', 30: 'skis', 31: 'snowboard', 32: 'sports ball', 33: 'kite',
+        34: 'baseball bat', 35: 'baseball glove', 36: 'skateboard', 37: 'surfboard',
+        38: 'tennis racket', 39: 'bottle', 40: 'wine glass', 41: 'cup', 42: 'fork',
+        43: 'knife', 44: 'spoon', 45: 'bowl', 46: 'banana', 47: 'apple', 48: 'sandwich',
+        49: 'orange', 50: 'broccoli', 51: 'carrot', 52: 'hot dog', 53: 'pizza',
+        54: 'donut', 55: 'cake', 56: 'chair', 57: 'couch', 58: 'potted plant',
+        59: 'bed', 60: 'dining table', 61: 'toilet', 62: 'tv', 63: 'laptop',
+        64: 'mouse', 65: 'remote', 66: 'keyboard', 67: 'cell phone', 68: 'microwave',
+        69: 'oven', 70: 'toaster', 71: 'sink', 72: 'refrigerator', 73: 'book',
+        74: 'clock', 75: 'vase', 76: 'scissors', 77: 'teddy bear', 78: 'hair drier',
+        79: 'toothbrush'
+    }
+    
+    # We're interested in cats (class 15) and dogs (class 16)
+    TARGET_CLASSES = {15: 'cat', 16: 'dog'}
+    
     def __init__(self, model_path):
-        logging.info("CatDogClassifier class initialized")
-        self.model = load_model(model_path)
-        logging.info("Model is loaded!")
+        logging.info("ObjectDetector class initialized")
+        self.model = YOLO(model_path)
+        logging.info("YOLO model loaded successfully!")
+
+    def detect(self, image_path):
+        """
+        Detect objects in the image and highlight cats and dogs
+        Returns: (annotated_image_base64, detection_results)
+        """
+        logging.info(f"Processing image: {image_path}")
         
-
-    def predict(self, image_url):
-        # load the image
-        img = self.load_image(image_url)
-
-        # predict the class
-        result = self.model.predict(img)
-
-        # return class
-        if result[0] == 0:
-            return "Cat"
+        # Run YOLOv8 inference
+        results = self.model(image_path, conf=0.25)  # confidence threshold 0.25
+        
+        # Process results
+        result = results[0]  # first image
+        original_img = cv2.imread(image_path)
+        annotated_img = original_img.copy()
+        
+        # Track detected cats and dogs
+        detected_objects = []
+        
+        # Go through each detection
+        for box in result.boxes:
+            class_id = int(box.cls[0].item())
+            confidence = box.conf[0].item()
+            
+            # Get coordinates (convert from normalized to pixel values)
+            x1, y1, x2, y2 = box.xyxy[0].tolist()
+            x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+            
+            # Check if this is a cat or dog
+            if class_id in self.TARGET_CLASSES:
+                class_name = self.TARGET_CLASSES[class_id]
+                color = (0, 255, 0) if class_name == 'cat' else (0, 0, 255)  # Green for cats, Red for dogs
+                
+                # Draw rectangle and label
+                cv2.rectangle(annotated_img, (x1, y1), (x2, y2), color, 2)
+                label = f"{class_name.upper()}: {confidence:.2f}"
+                cv2.putText(annotated_img, label, (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                
+                detected_objects.append({
+                    "class": class_name,
+                    "confidence": confidence,
+                    "box": [x1, y1, x2, y2]
+                })
+            else:
+                # Draw light gray boxes for other detected objects
+                cv2.rectangle(annotated_img, (x1, y1), (x2, y2), (200, 200, 200), 1)
+                if class_id in self.CLASS_NAMES:
+                    cv2.putText(annotated_img, self.CLASS_NAMES[class_id], (x1, y1-5), 
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.4, (150, 150, 150), 1)
+        
+        # Convert the annotated image to base64 for displaying in HTML
+        _, buffer = cv2.imencode('.jpg', annotated_img)
+        img_base64 = base64.b64encode(buffer).decode('utf-8')
+        
+        # Format detection results
+        if not detected_objects:
+            result_text = "No cats or dogs detected in this image."
         else:
-            return "Dog"
-
-    # load and prepare the image
-    def load_image(self, image_url):
-        # download image
-        img = self.download_url(image_url, "input.jpg")
-        logging.info("Image downloaded from {}".format(image_url))
-
-        # load the image
-        img = load_img("input.jpg", target_size=(224, 224))
-      
-        # convert to array
-        img = img_to_array(img)
-      
-        # reshape into a single sample with 3 channels
-        img = img.reshape(1, 224, 224, 3)
-      
-        return img
-
+            cats = len([obj for obj in detected_objects if obj["class"] == "cat"])
+            dogs = len([obj for obj in detected_objects if obj["class"] == "dog"])
+            result_text = f"Detected: {cats} cat(s) and {dogs} dog(s)"
+            
+        return img_base64, result_text, detected_objects
+    
     def download_url(self, url, filename):
-        """Download a file from url to filename, with a progress bar."""
-        urlretrieve(url, filename, data=None)
+        """Download a file from URL to filename."""
+        urlretrieve(url, filename)
+        return filename
 
 def main():
-	model = CatDogClassifier('model.h5')
-	predicted_class = model.predict("https://cdn.britannica.com/60/8160-050-08CCEABC/German-shepherd.jpg")
-	logging.info("This is an image of a {}".format(predicted_class)) 
+    model = ObjectDetector('yolov8n.pt')
+    img_path = 'input.jpg'
+    
+    # Download a test image
+    urlretrieve("https://cdn.britannica.com/60/8160-050-08CCEABC/German-shepherd.jpg", img_path)
+    
+    # Process the image
+    _, result_text, detections = model.detect(img_path)
+    logging.info(f"Detection results: {result_text}")
+    logging.info(f"Detailed detections: {detections}")
 
 
 if __name__ == "__main__":

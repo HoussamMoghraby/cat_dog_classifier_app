@@ -1,10 +1,9 @@
 from flask import Flask, request, render_template_string
-from model import CatDogClassifier
-from tensorflow.keras.preprocessing.image import load_img, img_to_array
+from model import ObjectDetector
 import os
 
 app = Flask(__name__)
-model = CatDogClassifier('model.h5')
+model = ObjectDetector('yolov8n.pt')
 
 HTML = '''
 <!DOCTYPE html>
@@ -12,16 +11,17 @@ HTML = '''
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat or Dog Classifier</title>
+    <title>Object Detection - Cat & Dog Detector</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px 0;
         }
         .container {
             background: white;
@@ -29,7 +29,7 @@ HTML = '''
             border-radius: 10px;
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             text-align: center;
-            max-width: 500px;
+            max-width: 800px;
             width: 90%;
         }
         h2 {
@@ -88,18 +88,21 @@ HTML = '''
 </head>
 <body>
     <div class="container">
-        <h2>Cat or Dog Classifier</h2>
+        <h2>Object Detection - Cat & Dog Detector</h2>
         <form method="post" enctype="multipart/form-data">
             <div class="upload-area">
                 <div class="upload-icon">📁</div>
                 <p class="upload-label">Drag and drop an image or click to browse</p>
                 <input type="file" name="file" class="file-input" accept="image/*">
             </div>
-            <button type="submit" class="btn-upload">Classify Image</button>
+            <button type="submit" class="btn-upload">Detect Objects</button>
         </form>
-        {% if prediction %}
+        {% if result_image %}
         <div class="prediction">
-            <h3>Prediction: {{ prediction }}</h3>
+            <h3>{{ detection_result }}</h3>
+            <div class="result-image" style="margin-top: 15px;">
+                <img src="data:image/jpeg;base64,{{ result_image }}" style="max-width:100%; border-radius:5px;">
+            </div>
         </div>
         {% endif %}
     </div>
@@ -118,20 +121,20 @@ HTML = '''
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
-    prediction = None
+    result_image = None
+    detection_result = None
+    
     if request.method == 'POST':
         file = request.files['file']
         if file:
             filepath = os.path.join('input.jpg')
             file.save(filepath)
-            # Use the model to predict
-            img = load_img(filepath, target_size=(224, 224))
-            img = img_to_array(img)
-            img = img.reshape(1, 224, 224, 3)
-            result = model.model.predict(img)
-            prediction = "Cat" if result[0] == 0 else "Dog"
-    return render_template_string(HTML, prediction=prediction)
+            
+            # Use YOLOv8 for object detection
+            result_image, detection_result, _ = model.detect(filepath)
+            
+    return render_template_string(HTML, result_image=result_image, detection_result=detection_result)
 
 if __name__ == '__main__':
     #app.run(debug=True)
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=6000, debug=False)
