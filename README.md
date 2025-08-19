@@ -72,6 +72,8 @@ Open your web browser and navigate to: http://[your-server-ip]
 3. Click the "Classify Image" button
 4. View the prediction result (Cat or Dog)
 
+[screen-capture (1).webm](https://github.com/user-attachments/assets/698c33fc-028d-4f0c-b45f-7e2b42bbf05b)
+
 ## Technical Details
 
 - **Framework**: Flask web framework
