@@ -46,12 +46,12 @@ docker build -t catdog-detector .
 3. **Run the Docker container**
 
 ```bash
-docker run -p 6000:6000 catdog-detector
+docker run -p 5000:5000 catdog-detector
 ```
 
 4. **Access the application**
 
-Open your web browser and navigate to: [http://localhost:6000](http://localhost:6000)
+Open your web browser and navigate to: [http://localhost:5000](http://localhost:5000)
 
 ## Deploying to AlmaLinux Server
 
@@ -61,7 +61,7 @@ Open your web browser and navigate to: [http://localhost:6000](http://localhost:
 
 ```bash
 docker build -t catdog-detector .
-docker run -d -p 80:6000 --restart unless-stopped --name catdog-detector-app catdog-detector
+docker run -d -p 80:5000 --restart unless-stopped --name catdog-detector-app catdog-detector
 ```
 
 3. **Access the deployed application**
