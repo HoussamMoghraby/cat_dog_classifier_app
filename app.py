@@ -91,7 +91,7 @@ HTML = '''
         <h2>Object Detection - Cat & Dog Detector</h2>
         <form method="post" enctype="multipart/form-data">
             <div class="upload-area">
-                <div class="upload-icon">📁</div>
+              <div class="upload-icon">&#128196;</div>
                 <p class="upload-label">Drag and drop an image or click to browse</p>
                 <input type="file" name="file" class="file-input" accept="image/*">
             </div>
@@ -137,4 +137,4 @@ def upload_file():
 
 if __name__ == '__main__':
     #app.run(debug=True)
-    app.run(host='0.0.0.0', port=6000, debug=False)
+    app.run(host='0.0.0.0', port=5000, debug=False)
