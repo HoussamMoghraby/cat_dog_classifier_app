@@ -1,7 +1,11 @@
-flask==2.0.1
+Flask==2.0.1
 gunicorn==20.1.0
-tensorflow==2.6.0
-pillow==8.4.0
-numpy==1.19.5
-urllib3==1.26.9
+tensorflow-cpu==2.6.0   # smaller than 'tensorflow' if you don't need GPU
+keras==2.6.0            # matches TF 2.6
+keras-preprocessing==1.1.2
+numpy==1.19.5           # ok for TF 2.6
+Pillow==8.4.0
 Jinja2==3.0.1
+urllib3==1.20.0        # bump; avoids resolver hell
+Werkzeug==2.0.1
+protobuf==3.20.*
