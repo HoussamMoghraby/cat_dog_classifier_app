@@ -96,9 +96,6 @@ Open your web browser and navigate to: http://[your-server-ip]
 - For image upload problems, verify that your image is in a supported format (JPG, PNG, GIF)
 - If the application fails to start, check Docker logs: `docker logs catdog-app`
 
-## License
-
-[Your License Information]
 
 ## Credits
 
