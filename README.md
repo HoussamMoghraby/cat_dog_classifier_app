@@ -1,5 +1,7 @@
 # Cat and Dog Image Classifier
 
+<img width="635" height="572" alt="image" src="https://github.com/user-attachments/assets/1615ba57-8a27-4c98-a205-57f3c1019bf5" />
+
 A machine learning web application that can identify whether an uploaded image contains a cat or a dog.
 
 ## Overview
@@ -14,6 +16,7 @@ The web interface allows users to upload their own images directly through a bro
 - Real-time image classification
 - Supports common image formats (JPG, PNG, GIF)
 - Containerized for easy deployment
+
 
 ## Setup Instructions
 
@@ -69,6 +72,8 @@ Open your web browser and navigate to: http://[your-server-ip]
 3. Click the "Classify Image" button
 4. View the prediction result (Cat or Dog)
 
+[screen-capture (1).webm](https://github.com/user-attachments/assets/698c33fc-028d-4f0c-b45f-7e2b42bbf05b)
+
 ## Technical Details
 
 - **Framework**: Flask web framework
@@ -93,9 +98,6 @@ Open your web browser and navigate to: http://[your-server-ip]
 - For image upload problems, verify that your image is in a supported format (JPG, PNG, GIF)
 - If the application fails to start, check Docker logs: `docker logs catdog-app`
 
-## License
-
-[Your License Information]
 
 ## Credits
 
