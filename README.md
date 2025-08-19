@@ -1,6 +1,7 @@
 # Cat and Dog Object Detector
 
-<img width="635" height="572" alt="image" src="https://github.com/user-attachments/assets/1615ba57-8a27-4c98-a205-57f3c1019bf5" />
+<img width="928" height="476" alt="image" src="https://github.com/user-attachments/assets/3e4f3c96-02f7-4461-beeb-c4c20188e492" />
+
 
 A machine learning web application that can detect and highlight cats and dogs in uploaded images.
 
@@ -75,7 +76,10 @@ Open your web browser and navigate to: http://[your-server-ip]
 4. View the processed image with highlighted cats (green boxes) and dogs (red boxes)
 5. See a summary of detected animals below the image
 
-[screen-capture (1).webm](https://github.com/user-attachments/assets/698c33fc-028d-4f0c-b45f-7e2b42bbf05b)
+
+
+https://github.com/user-attachments/assets/60290f15-2638-4dde-b6f7-a9171fbd1e79
+
 
 ## Technical Details
 
