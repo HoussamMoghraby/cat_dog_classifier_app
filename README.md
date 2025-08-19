@@ -1,5 +1,7 @@
 # Cat and Dog Image Classifier
 
+<img width="635" height="572" alt="image" src="https://github.com/user-attachments/assets/1615ba57-8a27-4c98-a205-57f3c1019bf5" />
+
 A machine learning web application that can identify whether an uploaded image contains a cat or a dog.
 
 ## Overview
@@ -14,9 +16,6 @@ The web interface allows users to upload their own images directly through a bro
 - Real-time image classification
 - Supports common image formats (JPG, PNG, GIF)
 - Containerized for easy deployment
-
-<img width="635" height="572" alt="image" src="https://github.com/user-attachments/assets/1615ba57-8a27-4c98-a205-57f3c1019bf5" />
-
 
 
 ## Setup Instructions
